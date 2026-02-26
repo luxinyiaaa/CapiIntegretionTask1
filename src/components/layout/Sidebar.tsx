@@ -1,4 +1,3 @@
-import * as React from "react";
 import { NavLink } from "react-router-dom";
 import { Box, HStack, Image, Text, VStack } from "@chakra-ui/react";
 import { navItems } from "./nav";

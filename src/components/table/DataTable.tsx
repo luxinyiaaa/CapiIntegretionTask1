@@ -8,9 +8,20 @@ export interface DataTableProps {
   rows: React.ReactNode[][];
   searchPlaceholder?: string;
   onSearchChange?: (value: string) => void;
+  rowActions?: React.ReactNode[];
+  actionHeader?: string;
+  showDefaultRowAction?: boolean;
 }
 
-export function DataTable({ columns, rows }: DataTableProps) {
+export function DataTable({
+  columns,
+  rows,
+  rowActions,
+  actionHeader = "",
+  showDefaultRowAction = true,
+}: DataTableProps) {
+  const showActionColumn = Boolean(rowActions) || showDefaultRowAction;
+
   return (
     <Box>
       <Box
@@ -54,7 +65,7 @@ export function DataTable({ columns, rows }: DataTableProps) {
                   </Table.ColumnHeader>
                 ))}
 
-                <Table.ColumnHeader w="56px" />
+                {showActionColumn ? <Table.ColumnHeader w="160px">{actionHeader}</Table.ColumnHeader> : null}
               </Table.Row>
             </Table.Header>
 
@@ -72,15 +83,21 @@ export function DataTable({ columns, rows }: DataTableProps) {
                     </Table.Cell>
                   ))}
 
-                  <Table.Cell py={4} textAlign="right" w="56px">
-                    <IconButton
-                      aria-label="Row actions"
-                      variant="ghost"
-                      size="sm"
-                    >
-                      <FiMoreVertical />
-                    </IconButton>
-                  </Table.Cell>
+                  {showActionColumn ? (
+                    <Table.Cell py={4} textAlign="right" w="160px">
+                      {rowActions ? (
+                        rowActions[i]
+                      ) : (
+                        <IconButton
+                          aria-label="Row actions"
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <FiMoreVertical />
+                        </IconButton>
+                      )}
+                    </Table.Cell>
+                  ) : null}
                 </Table.Row>
               ))}
             </Table.Body>

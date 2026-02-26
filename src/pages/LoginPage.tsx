@@ -1,5 +1,5 @@
 import { VStack, Heading, Text, Button, Link } from "@chakra-ui/react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 
 import { AuthLayout } from "@/components/auth/Authlayout";
@@ -7,11 +7,16 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthField } from "@/components/auth/AuthField";
 import { PasswordField } from "@/components/auth/PasswordField";
 
-// 你项目里如果是 useAuth()，把这里替换成你真实路径
 import { useAuth } from "@/context/useAuth";
+
+type LoginLocationState = {
+  reason?: "session_expired";
+};
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as LoginLocationState | null;
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -45,15 +50,16 @@ export default function LoginPage() {
   async function handleLogin() {
     if (!validate()) return;
 
-    // 如果你的 login 是同步函数，await 也不会坏
-    // await login(email.trim(), password);
-    const ok = login(email.trim(), password);
-    if (!ok) {
+    try {
+      const ok = await login(email.trim(), password);
+      if (!ok) {
+        setPasswordError("Invalid email or password");
+        return;
+      }
+      navigate("/dashboard");
+    } catch {
       setPasswordError("Invalid email or password");
-      return;
     }
-
-    navigate("/dashboard");
   }
 
   return (
@@ -65,6 +71,11 @@ export default function LoginPage() {
           <Text color="text.muted">
             Great to see you! Please enter your account details.
           </Text>
+          {locationState?.reason === "session_expired" ? (
+            <Text color="orange.500" fontSize="sm">
+              Session expired. Please log in again.
+            </Text>
+          ) : null}
 
           <AuthField
             placeholder="Email"

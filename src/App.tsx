@@ -1,53 +1,38 @@
-// src/App.tsx
-import { Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
-import PrivateRoute from "@/routes/PrivateRoute";
-import DashboardPage from "./pages/Dashboard";
-import ProductPage from "./pages/Products";
-import UsersPage from "@/pages/User";
-import AdminsPage from "@/pages/Admin";
+import type { FC } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <DashboardPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/products"
-        element={
-          <PrivateRoute>
-            <ProductPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/users"
-        element={
-          <PrivateRoute>
-            <UsersPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/admins"
-        element={
-          <PrivateRoute>
-            <AdminsPage />
-          </PrivateRoute>
-        }
-      />
-    </Routes>
-  );
-}
+import { setOnUnauthorizedHandler } from "@/api/axios";
+import { useAuth } from "@/context/useAuth";
+import { useCurrentUserQuery } from "@/hooks/useCurrentUserQuery";
+import { AppRoutes } from "@/routes/AppRoutes";
+import { RouteLoadingScreen } from "@/components/ui/RouteLoadingScreen";
+
+const App: FC = () => {
+  const navigate = useNavigate();
+  const { loading, logout, isAuthed } = useAuth();
+  const shouldFetchCurrentUser = !loading && isAuthed;
+
+  useCurrentUserQuery({
+    enabled: shouldFetchCurrentUser,
+    firebaseLoading: loading,
+  });
+
+  useEffect(() => {
+    setOnUnauthorizedHandler(() => {
+      void logout();
+      navigate("/login", {
+        replace: true,
+        state: { reason: "session_expired" },
+      });
+    });
+  }, [logout, navigate]);
+
+  if (loading) {
+    return <RouteLoadingScreen message="Loading application..." />;
+  }
+
+  return <AppRoutes />;
+};
 
 export default App;

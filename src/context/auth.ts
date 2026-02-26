@@ -1,20 +1,20 @@
 import { createContext } from "react";
+import type { User } from "firebase/auth";
 
-type User = {
-  email: string;
-  password: string;
-} | null;
-
-type AuthContextType = {
-  user: User;
-  login: (email: string, password: string) => boolean;
+export type AuthContextType = {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+  isAuthed: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   register: (
     name: string,
     email: string,
     password: string,
     phone: string,
     dob: string,
-  ) => boolean;
-  logout: () => void;
+  ) => Promise<boolean>;
+  logout: () => Promise<void>;
 };
+
 export const AuthContext = createContext<AuthContextType | null>(null);

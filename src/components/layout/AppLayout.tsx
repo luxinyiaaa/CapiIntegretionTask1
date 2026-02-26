@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Flex, Drawer } from "@chakra-ui/react";
+import { Box, Flex, Drawer, Portal } from "@chakra-ui/react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 
@@ -19,19 +19,25 @@ export function AppLayout({ title, children }: AppLayoutProps) {
       </Box>
 
       {/* Mobile Drawer Sidebar */}
-      <Drawer.Root
-        open={open}
-        onOpenChange={(details) => setOpen(details.open)}
-        placement="start"
-        size="xs"
-      >
-        <Drawer.Backdrop />
-        <Drawer.Positioner>
-          <Drawer.Content>
-            <Sidebar onNavigate={() => setOpen(false)} />
-          </Drawer.Content>
-        </Drawer.Positioner>
-      </Drawer.Root>
+      <Box display={{ base: "block", md: "none" }}>
+        <Drawer.Root
+          open={open}
+          onOpenChange={(details) => setOpen(details.open)}
+          placement="start"
+          size="xs"
+          lazyMount
+          unmountOnExit
+        >
+          <Portal>
+            <Drawer.Backdrop />
+            <Drawer.Positioner>
+              <Drawer.Content>
+                <Sidebar onNavigate={() => setOpen(false)} />
+              </Drawer.Content>
+            </Drawer.Positioner>
+          </Portal>
+        </Drawer.Root>
+      </Box>
 
       {/* Main */}
       <Flex direction="column" flex="1" minW={0}>

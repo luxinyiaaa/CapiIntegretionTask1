@@ -5,8 +5,9 @@ import { AuthLayout } from "@/components/auth/Authlayout";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { AuthField } from "@/components/auth/AuthField";
 import { PasswordField } from "@/components/auth/PasswordField";
+import { FirebaseError } from "firebase/app";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/useAuth";
 
 export default function RegisterPage() {
@@ -18,8 +19,32 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { register } = useAuth();
+  const { register, user, loading } = useAuth();
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/dashboard");
+    }
+  }, [user, loading, navigate]);
+
+  function mapRegisterError(error: unknown) {
+    if (error instanceof FirebaseError) {
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          return "This email is already registered.";
+        case "auth/invalid-email":
+          return "Invalid email address.";
+        case "auth/weak-password":
+          return "Password must be at least 6 characters.";
+        case "auth/operation-not-allowed":
+          return "Email/Password sign-up is not enabled in Firebase.";
+        default:
+          return `Register failed (${error.code}).`;
+      }
+    }
+
+    return "Register failed. Please try again.";
+  }
 
   function validate() {
     const newErrors: Record<string, string> = {};
@@ -58,11 +83,16 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0;
   }
 
-  function handeleRegister() {
+  async function handeleRegister() {
     if (!validate()) return;
-    const ok = register(name, email, password, phone, dob);
-    if (ok) {
-      navigate("/dashboard");
+    try {
+      await register(name, email, password, phone, dob);
+    } catch (error) {
+      console.error("Register error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        email: mapRegisterError(error),
+      }));
     }
   }
 

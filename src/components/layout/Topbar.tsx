@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -24,18 +23,18 @@ type TopbarProps = {
   onOpenMenu?: () => void;
 };
 
+//import user from auths
 export function Topbar({ onOpenMenu }: TopbarProps) {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
-  // TODO: 以后可以从 auth 的 user 里取
-  const name = "Jane Cooper";
-  const email = "janecooper@gmail.com";
+  const email = user?.email ?? "";
+  const name = user?.displayName?.trim() || email.split("@")[0] || "User";
 
   return (
     <Box
