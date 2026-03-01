@@ -42,6 +42,7 @@ export function Topbar({ onOpenMenu }: TopbarProps) {
       flexShrink={0}
       alignSelf="stretch"
       bg="bg.canvas"
+      pt="var(--safe-area-inset-top, 0px)"
       borderBottomWidth="1px"
       borderColor="border.subtle"
       position="sticky"

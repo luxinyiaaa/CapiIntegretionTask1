@@ -1,10 +1,11 @@
 import { initializeApp } from "firebase/app";
 import {
   browserLocalPersistence,
-  getAuth,
   onAuthStateChanged,
   setPersistence,
 } from "firebase/auth";
+import { initializeAuth, inMemoryPersistence } from "firebase/auth";
+
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -13,9 +14,13 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+console.log("FIREBASE CONFIG:", firebaseConfig);
 const app = initializeApp(firebaseConfig);
 
-export const auth = getAuth(app);
+// export const auth = getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: inMemoryPersistence,
+});
 export const db = getFirestore(app);
 
 void setPersistence(auth, browserLocalPersistence);

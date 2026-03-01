@@ -6,7 +6,8 @@ import axios, {
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth, waitForAuthReady } from "@/firebase";
 
-const baseURL = "http://localhost:8000/api";
+console.log("API BASE URL:", import.meta.env.VITE_API_BASE);
+const baseURL = import.meta.env.VITE_API_BASE;
 
 let onUnauthorizedHandler: (() => void) | null = null;
 

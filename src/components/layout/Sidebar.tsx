@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { Box, HStack, Image, Text, VStack } from "@chakra-ui/react";
 import { navItems } from "./nav";
 
@@ -7,6 +8,11 @@ type SidebarProps = {
 };
 
 export function Sidebar({ onNavigate }: SidebarProps) {
+  const handleNavClick = () => {
+    void Haptics.impact({ style: ImpactStyle.Light });
+    onNavigate?.();
+  };
+
   return (
     <Box
       h="100%"
@@ -29,7 +35,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             key={item.to}
             to={item.to}
             style={{ textDecoration: "none" }}
-            onClick={onNavigate}
+            onClick={handleNavClick}
           >
             {({ isActive }) => (
               <HStack
